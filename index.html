@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+
+<html lang="en" class="h-100">
+  <head>
+    <meta charset="utf-8" />
+
+    <title>Gazetteer</title>
+
+    <meta name="author" content="Pooja Dodia" />
+    <meta name="description" content="Gazetteer" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Aleo:ital,wght@0,300;0,400;0,700;1,300;1,400;1,700&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- Bootstrap -->
+    <link
+      rel="stylesheet"
+      href="libs/bootstrap-4.1.3-dist/css/bootstrap.min.css"
+    />
+
+    <!-- Leaflet Styles -->
+    <link rel="stylesheet" href="libs/leaflet/leaflet.css" />
+    <link
+      rel="stylesheet"
+      href="libs/leaflet/easybutton/Leaflet.EasyButton-master/src/easy-button.css"
+    />
+
+    <!--Marker Cluster -->
+    <link
+      rel="stylesheet"
+      href="libs/leaflet/markercluster/Leaflet.markercluster-master/dist/MarkerCluster.css"
+    />
+    <link
+      rel="stylesheet"
+      href="libs/leaflet/markercluster/Leaflet.markercluster-master/dist/MarkerCluster.Default.css"
+    />
+
+    <!-- Custom Stylesheet -->
+    <link rel="stylesheet" type="text/css" href="libs/css/style.css" />
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="libs/icons/worldPlanet.png" />
+  </head>
+
+  <body>
+    <div class="loader-bg">
+      <div class="loader-p"></div>
+    </div>
+    <div class="col">
+      <header>
+        <select
+          name="country"
+          class="form-control"
+          id="country"
+          onchange="changeToCountry(this.value)"
+        ></select>
+      </header>
+    </div>
+
+    <main>
+      <div id="mapid"></div>
+      <div
+        class="modal fade"
+        id="countryInfoModal"
+        tabindex="-1"
+        role="dialog"
+        aria-labelledby="countryInfoModalCenterTitle"
+        aria-hidden="true"
+      >
+        <div class="modal-dialog modal-dialog-centered" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title modalTitle" id="Modal1Title"></h5>
+
+              <button
+                type="button"
+                class="close"
+                data-dismiss="modal"
+                aria-label="Close"
+              >
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+
+            <div class="modal-body">
+              <br /><br />
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th scope="col" colspan="2">Country Information</th>
+                  </tr>
+                </thead>
+
+                <tbody class="countryInfo">
+                  <tr>
+                    <th scope="row">Country Name</th>
+                    <td id="countryInfoName"></td>
+                  </tr>
+                  <tr>
+                    <th scope="row">Capital City</th>
+                    <td id="countryInfoCapital"></td>
+                  </tr>
+                  <tr>
+                    <th scope="row">Time zone</th>
+                    <td id="countryInfoTimezone"></td>
+                  </tr>
+                  <tr>
+                    <th scope="row">Time Offset (UTC+)</th>
+                    <td id="countryInfoOffset"></td>
+                  </tr>
+                  <tr>
+                    <th scope="row">Population</th>
+                    <td id="countryInfoPopulation"></td>
+                  </tr>
+                  <tr>
+                    <th scope="row">Area (KM²)</th>
+                    <td id="countryInfoArea"></td>
+                  </tr>
+                  <tr>
+                    <th scope="row">Language</th>
+                    <td id="countryInfoLanguage"></td>
+                  </tr>
+                </tbody>
+              </table>
+
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th scope="col" colspan="2">Base - USD</th>
+                  </tr>
+                </thead>
+
+                <tbody class="countryInfo">
+                  <tr>
+                    <th scope="row">Currency Code</th>
+                    <td id="countryInfoCurrencyCode"></td>
+                  </tr>
+                  <tr>
+                    <th scope="row">Current Exchange Rate</th>
+                    <td id="countryInfoExchange"></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!--Currency Modal-->
+      <div class="modal fade" id="currencyInfoModal" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title modalTitle" id="ModalCurrencyTitle"></h5>
+
+              <button type="button" class="close" data-dismiss="modal">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+
+            <div class="modal-body">
+              <br /><br />
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th scope="col" colspan="2">Currency Information</th>
+                  </tr>
+                </thead>
+
+                <tbody class="currencyInfo">
+                  <tr>
+                    <th scope="row">Currency Code</th>
+                    <td id="countryInfoCurrencyCode"></td>
+                  </tr>
+                  <tr>
+                    <th scope="row">Currency Name</th>
+                    <td id="countryInfoCurrencyName"></td>
+                  </tr>
+                  <tr>
+                    <th scope="row">Current Exchange Rate</th>
+                    <td id="countryInfoExchange"></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div
+        class="modal fade"
+        id="weatherModal"
+        tabindex="-1"
+        role="dialog"
+        aria-labelledby="weatherModalCenterTitle"
+        aria-hidden="true"
+      >
+        <div class="modal-dialog modal-dialog-centered" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title modalTitle" id="Modal2Title"></h5>
+
+              <button
+                type="button"
+                class="close"
+                data-dismiss="modal"
+                aria-label="Close"
+              >
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+
+            <div class="modal-body" id="weather_update"></div>
+          </div>
+        </div>
+      </div>
+
+      <div
+        class="modal fade"
+        id="covidModal"
+        tabindex="-1"
+        role="dialog"
+        aria-labelledby="covidModalCenterTitle"
+        aria-hidden="true"
+      >
+        <div class="modal-dialog modal-dialog-centered" role="document">
+          <div class="modal-content covidModal">
+            <div class="modal-header">
+              <h5 class="modal-title modalTitle" id="Modal3Title"></h5>
+
+              <button
+                type="button"
+                class="close"
+                data-dismiss="modal"
+                aria-label="Close"
+              >
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+
+            <div class="modal-body">
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th scope="col" colspan="2" class="covidHead">Total</th>
+                  </tr>
+                </thead>
+
+                <tbody class="covidTable">
+                  <tr>
+                    <th scope="row">
+                      <i class="fas fa-virus"></i> Total Cases
+                    </th>
+                    <td id="totalCases"></td>
+                  </tr>
+                  <tr>
+                    <th scope="row">
+                      <i class="fas fa-feather-alt"></i> Total Deaths
+                    </th>
+                    <td id="totalDeaths"></td>
+                  </tr>
+                  <tr>
+                    <th scope="row">
+                      <i class="fas fa-user-md"></i> Total Recovered
+                    </th>
+                    <td id="totalRecovered"></td>
+                  </tr>
+                </tbody>
+              </table>
+
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th scope="col" colspan="2" class="covidHead">
+                      Past 24 Hours
+                    </th>
+                  </tr>
+                </thead>
+
+                <tbody class="covidTable">
+                  <tr>
+                    <th scope="row"><i class="fas fa-virus"></i> New Cases</th>
+                    <td id="newCases"></td>
+                  </tr>
+                  <tr>
+                    <th scope="row">
+                      <i class="fas fa-feather-alt"></i> New Deaths
+                    </th>
+                    <td id="newDeaths"></td>
+                  </tr>
+                  <tr>
+                    <th scope="row">
+                      <i class="fas fa-user-md"></i> New Recovered
+                    </th>
+                    <td id="newRecovered"></td>
+                  </tr>
+                </tbody>
+              </table>
+
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th scope="col" colspan="2" class="covidHead">
+                      3 Months Ago
+                    </th>
+                  </tr>
+                </thead>
+
+                <tbody class="covidTable">
+                  <tr>
+                    <th scope="row">
+                      <i class="fas fa-virus"></i> Total Cases
+                    </th>
+                    <td id="3mCases"></td>
+                  </tr>
+                  <tr>
+                    <th scope="row">
+                      <i class="fas fa-feather-alt"></i> Total Deaths
+                    </th>
+                    <td id="3mDeaths"></td>
+                  </tr>
+                  <tr>
+                    <th scope="row">
+                      <i class="fas fa-user-md"></i> Total Recovered
+                    </th>
+                    <td id="3mRecovered"></td>
+                  </tr>
+                </tbody>
+              </table>
+
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th scope="col" colspan="2" class="covidHead">
+                      6 Months Ago
+                    </th>
+                  </tr>
+                </thead>
+
+                <tbody class="covidTable">
+                  <tr>
+                    <th scope="row">
+                      <i class="fas fa-virus"></i> Total Cases
+                    </th>
+                    <td id="6mCases"></td>
+                  </tr>
+                  <tr>
+                    <th scope="row">
+                      <i class="fas fa-feather-alt"></i> Total Deaths
+                    </th>
+                    <td id="6mDeaths"></td>
+                  </tr>
+                  <tr>
+                    <th scope="row">
+                      <i class="fas fa-user-md"></i> Total Recovered
+                    </th>
+                    <td id="6mRecovered"></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- News Data -->
+      <div class="modal fade" id="newsModal">
+        <div class="modal-dialog modal-lg">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h4 class="modal-title modalTitle" id="Modal4Title"></h4>
+              <button type="button" class="close" data-dismiss="modal">
+                &times;
+              </button>
+            </div>
+            <div class="modal-body" id="news_data"></div>
+            <div class="modal-footer">
+              <button
+                type="button"
+                class="btn btn-secondary"
+                data-dismiss="modal"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div
+        class="modal fade"
+        id="newsError"
+        tabindex="-1"
+        role="dialog"
+        aria-labelledby="newsErrorCenterTitle"
+        aria-hidden="true"
+      >
+        <div class="modal-dialog modal-dialog-centered" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title modalTitle" id="Modal5Title">Sorry...</h5>
+
+              <button
+                type="button"
+                class="close"
+                data-dismiss="modal"
+                aria-label="Close"
+              >
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+
+            <div class="modal-body">
+              <p>
+                Sorry, there is no news to display
+                <span id="errorCountry"></span> right now.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Holidays Data -->
+      <div class="modal fade" id="holidayModal">
+        <div class="modal-dialog modal-lg">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h4 class="modal-title modalTitle" id="Modal6Title"></h4>
+              <button type="button" class="close" data-dismiss="modal">
+                &times;
+              </button>
+            </div>
+            <div class="modal-body" id="holiday_data"></div>
+            <div class="modal-footer">
+              <button
+                type="button"
+                class="btn btn-secondary"
+                data-dismiss="modal"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal fade" id="flagModal">
+        <div class="modal-dialog modal-lg">
+          <div class="modal-content flagModal">
+            <div class="modal-header">
+              <h4 class="modal-title modalTitle" id="Modal7Title"></h4>
+              <div id="flag-container">
+                <img src="" alt="" />
+              </div>
+              <button type="button" class="close" data-dismiss="modal">
+                &times;
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!--Videos Modal-->
+      <div class="modal fade" id="videoModal">
+        <div class="modal-dialog modal-lg">
+          <div class="modal-content videoModal">
+            <div class="modal-header">
+              <h4 class="modal-title modalTitle" id="Modal8Title"></h4>
+              <div id="video-container">
+                <video src="" alt="" controls width="320" height="300" />
+              </div>
+
+              <button type="button" class="close" data-dismiss="modal">
+                &times;
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- jQuery Script -->
+    <script
+      type="application/javascript"
+      src="libs/js/jquery-2.2.3.min.js"
+    ></script>
+
+    <!--Date scripts-->
+
+    <script src="date/en-US.js"></script>
+    <script src="date/core.js"></script>
+    <script src="date/parser.js"></script>
+    <script src="date/sugarpak.js"></script>
+    <script src="date/time.js"></script>
+    <script src="date/extras.js"></script>
+
+    <!-- Font-Awesome -->
+    <script
+      src="https://kit.fontawesome.com/2c55ed071b.js"
+      crossorigin="anonymous"
+    ></script>
+
+    <!-- Bootstrap Script  -->
+    <script src="libs/bootstrap-4.1.3-dist/js/bootstrap.min.js"></script>
+    <script src="libs/bootstrap-4.1.3-dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Leaflet Scripts-->
+
+    <script src="libs/leaflet/leaflet.js"></script>
+
+    <script src="libs/leaflet/easybutton/Leaflet.EasyButton-master/src/easy-button.js"></script>
+
+    <!-- MarkerCluster -->
+    <script src="https://unpkg.com/leaflet.markercluster@1.3.0/dist/leaflet.markercluster.js"></script>
+    <script src=""></script>
+
+    <!-- My Scripts-->
+    <script type="text/javascript" src="libs/js/app.js"></script>
+  </body>
+</html>
